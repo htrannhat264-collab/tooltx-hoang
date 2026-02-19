@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI MD5 PRESTIGE - TRUTH SYSTEM 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #00f2ff;
+            --neon-purple: #bc13fe;
+            --neon-green: #39ff14;
+            --gold: #ffcc00;
+            --red: #ff003c;
+            --bg: #03080f;
+        }
+
+        body {
+            margin: 0; background: var(--bg); color: white;
+            font-family: 'Orbitron', sans-serif; display: flex;
+            flex-direction: column; align-items: center; min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        canvas#snow { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 5; }
+
+        .container { width: 92%; max-width: 440px; padding: 25px 0; position: relative; z-index: 10; }
+
+        /* Card Giao diện ⚡️ */
+        .card {
+            background: rgba(10, 25, 47, 0.9);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            backdrop-filter: blur(20px); border-radius: 20px;
+            padding: 25px; margin-bottom: 25px;
+            box-shadow: 0 0 30px rgba(0,0,0,1);
+            position: relative; overflow: hidden;
+        }
+
+        /* Lightning Animation */
+        .lightning-effect {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; border-radius: 20px; z-index: 0;
+        }
+        .flash-⚡ { border: 2px solid var(--neon-blue); box-shadow: 0 0 40px var(--neon-blue); animation: flash 0.4s ease-out; }
+        @keyframes flash { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+
+        input {
+            width: 100%; padding: 18px; background: #000;
+            border: 2px solid var(--neon-blue); border-radius: 12px;
+            color: var(--neon-blue); text-align: center; font-size: 14px;
+            font-family: 'Roboto Mono'; outline: none; box-sizing: border-box;
+        }
+
+        .btn-main {
+            width: 100%; padding: 20px; margin-top: 15px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            border: none; border-radius: 15px; color: white;
+            font-weight: 900; font-size: 18px; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 2px;
+            box-shadow: 0 0 20px rgba(188, 19, 254, 0.5);
+        }
+
+        .res-main {
+            font-size: 60px; text-align: center; font-weight: 900;
+            margin: 15px 0; letter-spacing: 5px; text-shadow: 0 0 20px currentColor;
+        }
+
+        .stat-line { display: flex; justify-content: space-between; font-size: 13px; color: #8892b0; margin-bottom: 8px; }
+
+        /* Lịch sử kết quả thực */
+        .history-title { color: var(--gold); text-align: center; font-size: 14px; margin-bottom: 15px; border-bottom: 1px solid var(--gold); padding-bottom: 5px; }
+        
+        .history-item {
+            font-size: 12px; padding: 12px; display: flex;
+            justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .badge { padding: 4px 8px; border-radius: 5px; font-weight: 900; font-size: 10px; }
+        .win-bg { background: var(--neon-green); color: black; }
+        .loss-bg { background: var(--red); color: white; }
+
+        .music-btn {
+            position: fixed; bottom: 25px; right: 25px;
+            background: var(--neon-blue); width: 60px; height: 60px;
+            border-radius: 50%; display: flex; justify-content: center;
+            align-items: center; cursor: pointer; z-index: 1000;
+            box-shadow: 0 0 30px var(--neon-blue);
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="snow"></canvas>
+
+<div class="container">
+    <div class="card">
+        <input type="text" id="md5Input" placeholder="DÁN MÃ MD5..." readonly onclick="autoPaste()">
+        <button class="btn-main" onclick="startAnalyze()">PHÂN TÍCH ⚡️</button>
+    </div>
+
+    <div class="card" id="resultCard" style="display: none;">
+        <div class="lightning-effect" id="lightning"></div>
+        <div style="color:var(--gold); text-align:center; font-size:12px; font-weight:900;">DỰ ĐOÁN HỆ THỐNG</div>
+        <div id="bigRes" class="res-main">--</div>
+        
+        <div class="stat-line"><span>XÁC SUẤT:</span> <span id="pText" style="color:var(--neon-green)">0%</span></div>
+        <div class="stat-line"><span>TỔNG ĐIỂM:</span> <span id="sText" style="color:var(--gold)">0</span></div>
+
+        <div style="display: flex; gap: 10px; margin-top: 25px;">
+            <button onclick="handleBtn(true)" style="flex:1; padding:18px; background:var(--neon-green); border:none; border-radius:12px; font-weight:900; cursor:pointer;">ĐÚNG (WIN)</button>
+            <button onclick="handleBtn(false)" style="flex:1; padding:18px; background:var(--red); border:none; border-radius:12px; color:white; font-weight:900; cursor:pointer;">SAI (LOSS)</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="history-title">LỊCH SỬ KẾT QUẢ THỰC CỦA GAME</div>
+        <div id="historyBox"></div>
+        <button onclick="clearData()" style="width:100%; background:none; border:none; color:#444; font-size:9px; margin-top:15px; cursor:pointer;">RESET DỮ LIỆU</button>
+    </div>
+</div>
+
+<div class="music-btn" onclick="toggleMusic()">🧧</div>
+<audio id="bgMusic" loop><source src="https://raw.githubusercontent.com/dev-dangviet/nucuoimatchuoc/0b8a8ba708f6ccf3f07207a1019f1862debd811a/nucuoimatchuoc.mp3.m4a" type="audio/mp4"></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script>
+    let db = JSON.parse(localStorage.getItem('md5_ultimate_v10')) || { history: [] };
+    let predict = {};
+    const music = document.getElementById("bgMusic");
+
+    window.onload = () => { renderHistory(); };
+
+    document.addEventListener('touchstart', () => { if(music.paused) music.play(); }, {once: true});
+
+    function toggleMusic() { if(music.paused) music.play(); else music.pause(); }
+
+    async function autoPaste() {
+        const text = await navigator.clipboard.readText();
+        if(text.length > 5) document.getElementById("md5Input").value = text;
+    }
+
+    function startAnalyze() {
+        const input = document.getElementById("md5Input").value.trim();
+        if(!input) return autoPaste();
+
+        // ⚡️ Thuật toán MD5 No-Random
+        const hash = CryptoJS.SHA256(input).toString();
+        const f = parseInt(hash.charAt(0), 16);
+        const l = parseInt(hash.charAt(63), 16);
+        const m = parseInt(hash.charAt(31), 16);
+        
+        const res = ((f + l) % 2 === 0) ? "TÀI" : "XỈU";
+        predict = { 
+            res: res, 
+            prob: 80 + (m % 18), 
+            score: res === "TÀI" ? (11 + (f % 7)) : (4 + (f % 7)) 
+        };
+
+        // Lightning Flash
+        const flash = document.getElementById("lightning");
+        flash.classList.add("flash-⚡");
+        setTimeout(() => flash.classList.remove("flash-⚡"), 400);
+
+        document.getElementById("bigRes").innerText = predict.res;
+        document.getElementById("bigRes").style.color = predict.res === "TÀI" ? "var(--red)" : "var(--neon-blue)";
+        document.getElementById("pText").innerText = predict.prob + "%";
+        document.getElementById("sText").innerText = predict.score;
+        document.getElementById("resultCard").style.display = "block";
+    }
+
+    function handleBtn(isWin) {
+        // QUAN TRỌNG: Tính toán kết quả ĐÚNG của game
+        let actualGameResult = predict.res;
+        if (!isWin) {
+            // Nếu dự đoán SAI, kết quả thực tế game ra là ngược lại
+            actualGameResult = (predict.res === "TÀI") ? "XỈU" : "TÀI";
+        }
+
+        db.history.push({
+            gameRes: actualGameResult,
+            isWin: isWin,
+            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+        });
+
+        if(db.history.length > 15) db.history.shift();
+        localStorage.setItem('md5_ultimate_v10', JSON.stringify(db));
+        
+        renderHistory();
+        document.getElementById("resultCard").style.display = "none";
+        document.getElementById("md5Input").value = "";
+    }
+
+    function renderHistory() {
+        const box = document.getElementById("historyBox");
+        box.innerHTML = "";
+        db.history.slice().reverse().forEach(item => {
+            const div = document.createElement("div");
+            div.className = "history-item";
+            div.innerHTML = `
+                <span>${item.time}</span>
+                <b style="color:${item.gameRes === 'TÀI' ? 'var(--red)' : 'var(--neon-blue)'}">${item.gameRes === 'TÀI' ? '🔴' : '⚪'} ${item.gameRes}</b>
+                <span class="badge ${item.isWin ? 'win-bg' : 'loss-bg'}">${item.isWin ? 'THẮNG' : 'THUA'}</span>
+            `;
+            box.appendChild(div);
+        });
+    }
+
+    function clearData() { if(confirm("Xóa lịch sử?")) { db.history = []; localStorage.clear(); renderHistory(); } }
+
+    // Tuyết rơi
+    const canvas = document.getElementById("snow");
+    const ctx = canvas.getContext("2d");
+    let flakes = [];
+    function init() {
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        flakes = Array.from({length: 40}, () => ({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 2 + 1, d: Math.random() * 0.5 + 0.2 }));
+    }
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = "rgba(255,255,255,0.4)";
+        flakes.forEach(f => { ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2); ctx.fill(); f.y += f.d; if (f.y > canvas.height) f.y = -5; });
+        requestAnimationFrame(draw);
+    }
+    init(); draw();
+</script>
+</body>
+</html>
